@@ -1,0 +1,43 @@
+import { pipeline, FeatureExtractionPipeline } from "@xenova/transformers";
+
+let _extractorInstance: FeatureExtractionPipeline | null = null;
+
+export async function initEmbeddingExtractor(): Promise<FeatureExtractionPipeline> {
+    if (!_extractorInstance) {
+        console.log("Initializing embedding model (this may take a moment)...");
+        _extractorInstance = await pipeline(
+            "feature-extraction",
+            "mixedbread-ai/mxbai-embed-large-v1",
+            {
+                quantized: true,
+            }
+        );
+        console.log("Embedding model initialized and ready.");
+    }
+    return _extractorInstance;
+}
+initEmbeddingExtractor();
+
+export const computeEmbeddingHandler = async (query: string) => {
+    if (!query || typeof query !== "string") {
+        return {
+            msg: "Query parameter is missing or invalid.",
+        };
+    }
+
+    if (!_extractorInstance) {
+        console.error("Embedding extractor not initialized.");
+        return {
+            msg: "Service unavailable: Embedding model not loaded.",
+        };
+    }
+
+    const output = await _extractorInstance([query], { pooling: "cls" });
+
+    const queryEmbedding = output.tolist()[0];
+
+    return {
+        msg: "Embedding Computed Successfully",
+        embedding: queryEmbedding,
+    };
+};
