@@ -23,7 +23,7 @@ Together, these components make Big Brain a **personal AI-powered knowledge univ
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/big-brain-backend.git
+git clone https://github.com/AkhilPundir156/Big-Brain-Backend.git
 cd big-brain
 ```
 ### 2. Install dependencies
