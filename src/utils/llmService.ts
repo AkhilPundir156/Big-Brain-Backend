@@ -1,3 +1,5 @@
+import fs from "fs/promises";
+
 export class LLMService {
     apiKey: string;
     baseURL: string;
@@ -75,6 +77,10 @@ export class LLMService {
         try {
             const url = `${this.baseURL}/${model}:generateContent?key=${this.apiKey}`;
 
+            //@ts-ignore
+            const buffer = await fs.readFile(imgUrl.path);
+            const base64Image = buffer.toString("base64");
+
             const body = {
                 contents: [
                     {
@@ -83,8 +89,9 @@ export class LLMService {
                             { text: systemPrompt },
                             {
                                 inlineData: {
-                                    mimeType: "image/png",
-                                    data: imgUrl,
+                                    //@ts-ignore
+                                    mimeType: imgUrl.mimetype,
+                                    data: base64Image,
                                 },
                             },
                         ],
@@ -94,25 +101,22 @@ export class LLMService {
 
             const res = await fetch(url, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body),
             });
 
             if (!res.ok) {
-                throw new Error(`Gemini API error: ${res.statusText}`);
+                const errorText = await res.text();
+                throw new Error(
+                    `Gemini API error: ${res.status} - ${errorText}`
+                );
             }
 
             const data = await res.json();
-            const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-
-            const cleaned = raw
-                .replace(/^analysis.*?(?=assistantfinal)/is, "")
-                .replace(/^assistantfinal/i, "")
-                .trim();
-
-            return cleaned || "Sorry, I don’t have an answer right now.";
+            return (
+                data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+                "Sorry, I don’t have an answer right now."
+            );
         } catch (err: any) {
             console.error("Image description error:", err.message || err);
             throw new Error("Failed to get image description");
