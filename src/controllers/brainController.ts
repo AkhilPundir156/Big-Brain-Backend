@@ -63,7 +63,6 @@ export const createHandler = asyncHandler(
             });
             return;
         }
-
         const userId = req.user?.id;
         if (!userId) {
             res.status(401).json({
@@ -114,7 +113,8 @@ export const createHandler = asyncHandler(
         if (url && url.length > 0) {
             [llmImgResponse, embedding] = await Promise.all([
                 llmService.getImageDescription(
-                    url,
+                    //@ts-ignore
+                    req.file,
                     prompts.image_description_prompt
                 ),
                 computeEmbeddingHandler(contentData.description),
@@ -360,7 +360,6 @@ export const searchHandler = asyncHandler(
 
             res.status(200).json({
                 success: true,
-                msg: "Search completed",
                 data: { results: foundContent, llmResponse: response },
             });
         } catch (error) {
