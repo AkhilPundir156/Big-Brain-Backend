@@ -295,7 +295,7 @@ export const hashedContentHandler = asyncHandler(
             .find({
                 userId: founduserId.userId,
             })
-            .select("-embedding");
+            .select("-embedding").populate("tags", "name");
 
         res.status(200).json({
             success: true,
