@@ -10,7 +10,11 @@ import passport from "passport";
 import { Strategy as googleStrategy } from "./oauth/googleStratgy.js";
 import UserRouter from "./routes/userRoutes.js";
 import BrainRouter from "./routes/brainRouter.js";
+import contactRouter from "./routes/contactRouter.js";
 import connectDB from "./connectDB/connectDB.js";
+
+// -------- Cron Jobs automation--------
+import "./utils/cronHandler.js";
 
 const app = express();
 
@@ -41,6 +45,7 @@ app.use(
 // -------- Routes --------
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/brain", BrainRouter);
+app.use("/",contactRouter); // Contact Router
 
 // ------- Unhandled Routes -------
 app.use((req: Request, res: Response) => {
