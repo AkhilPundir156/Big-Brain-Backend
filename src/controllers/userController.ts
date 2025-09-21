@@ -2,10 +2,12 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import z from "zod";
 
-import userModel from "../models/userSchema.js";
+import userModel, { contactModel } from "../models/userSchema.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { setAuthCookie } from "../middleware/setAuthCookie.js";
+
 import { AuthenticatedRequest } from "../types/express.js";
+
 import { uploadCloudinary } from "../utils/cloudinaryHandler.js";
 
 // ---------------- Validation ----------------
@@ -37,7 +39,9 @@ export const SignupHandler = asyncHandler(
 
         const existingUser = await userModel.findOne({ email: userData.email });
         if (existingUser) {
-            return res.status(400).json({error:false, msg: "User already exists" });
+            return res
+                .status(400)
+                .json({ error: false, msg: "User already exists" });
         }
 
         const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -67,7 +71,7 @@ export const LoginHandler = asyncHandler(
     async (req: Request, res: Response) => {
         const userData: LoginUser = req.body;
 
-        console.log(userData)
+        console.log(userData);
         const parsed = loginSchema.safeParse(userData);
 
         if (!parsed.success) {
@@ -103,20 +107,24 @@ export const LoginHandler = asyncHandler(
     }
 );
 
-export const myProfileHandler = asyncHandler(async(req: AuthenticatedRequest, res: Response)=>{
-    if(!req?.user?.id){
-        res.status(400).json({
-            msg: "User Not Logged In",
-        });
-        return;
-    }
-    const foundUser = await userModel.findById(req.user.id).select("-password -googleId");
+export const myProfileHandler = asyncHandler(
+    async (req: AuthenticatedRequest, res: Response) => {
+        if (!req?.user?.id) {
+            res.status(400).json({
+                msg: "User Not Logged In",
+            });
+            return;
+        }
+        const foundUser = await userModel
+            .findById(req.user.id)
+            .select("-password -googleId");
 
-    res.status(200).json({
-        msg: "Users Pofile",
-        user: foundUser,
-    })
-})
+        res.status(200).json({
+            msg: "Users Pofile",
+            user: foundUser,
+        });
+    }
+);
 
 // Logout
 export const LogoutHandler = asyncHandler(
@@ -145,5 +153,35 @@ export const googleLoginHandler = asyncHandler(
         setAuthCookie(res, user?._id);
 
         return res.redirect(`http://localhost:3001/login`);
+    }
+);
+
+//contact us handler
+export const contactUsHandler = asyncHandler(
+    async (req: Request, res: Response) => {
+        try {
+            const { name, email, message } = req.body;
+
+            if (!name || !email || !message) {
+                return res.status(400).json({ success: false, msg: "All fields are required" });
+            }
+
+            await contactModel.create({
+                name,
+                email,
+                message,
+                createdAt: new Date(),
+            });
+
+            return res
+                .status(200)
+                .json({ success: true, msg: "Message received successfully" });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                msg: "Failed to send message",
+                error,
+            });
+        }
     }
 );
