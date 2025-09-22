@@ -45,7 +45,6 @@ export const SignupHandler = asyncHandler(
         let url: string = "";
         if (req.file?.path) {
             const cloundinaryResponse = await uploadCloudinary(req.file.path);
-            console.log(cloundinaryResponse.msg);
             url = cloundinaryResponse.data?.url as string;
         }
 
@@ -67,7 +66,6 @@ export const LoginHandler = asyncHandler(
     async (req: Request, res: Response) => {
         const userData: LoginUser = req.body;
 
-        console.log(userData)
         const parsed = loginSchema.safeParse(userData);
 
         if (!parsed.success) {

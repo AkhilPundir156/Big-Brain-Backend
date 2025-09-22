@@ -64,7 +64,6 @@ export class LLMService {
 
             return cleaned || "Sorry, I don’t have an answer right now.";
         } catch (err: any) {
-            console.error("LLM error:", err.message || err);
             throw new Error("Failed to get LLM response");
         }
     }
@@ -118,7 +117,6 @@ export class LLMService {
                 "Sorry, I don’t have an answer right now."
             );
         } catch (err: any) {
-            console.error("Image description error:", err.message || err);
             throw new Error("Failed to get image description");
         }
     }
