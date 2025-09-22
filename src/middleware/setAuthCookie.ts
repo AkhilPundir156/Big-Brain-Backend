@@ -12,8 +12,8 @@ export const setAuthCookie = (res: Response, userId: string) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production" || true,
-    sameSite: "strict",
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    maxAge: 24 * 60 * 60 * 1000,
   });
 };
