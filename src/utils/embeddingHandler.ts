@@ -16,7 +16,11 @@ export async function initEmbeddingExtractor(): Promise<FeatureExtractionPipelin
     }
     return _extractorInstance;
 }
-initEmbeddingExtractor();
+
+//@ts-ignore
+if(process.env.INITIALIZE_EMBEDDING == "1"){
+    initEmbeddingExtractor();
+}
 
 export const computeEmbeddingHandler = async (query: string) => {
     if (!query || typeof query !== "string") {
