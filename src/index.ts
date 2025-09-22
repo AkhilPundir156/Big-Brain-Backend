@@ -32,14 +32,14 @@ app.use(
     })
 );
 
-app.use(
-    session({
-        secret: process.env.JWT_SECRET as string,
-        resave: false,
-        saveUninitialized: false,
-        cookie: { secure: false },
-    })
-);
+// app.use(
+//     session({
+//         secret: process.env.JWT_SECRET as string,
+//         resave: false,
+//         saveUninitialized: false,
+//         cookie: { secure: false },
+//     })
+// );
 
 // -------- Routes --------
 app.use("/api/v1/user", UserRouter);
