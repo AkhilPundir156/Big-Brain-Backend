@@ -37,7 +37,9 @@ export const SignupHandler = asyncHandler(
 
         const existingUser = await userModel.findOne({ email: userData.email });
         if (existingUser) {
-            return res.status(400).json({error:false, msg: "User already exists" });
+            return res
+                .status(400)
+                .json({ error: false, msg: "User already exists" });
         }
 
         const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -101,20 +103,24 @@ export const LoginHandler = asyncHandler(
     }
 );
 
-export const myProfileHandler = asyncHandler(async(req: AuthenticatedRequest, res: Response)=>{
-    if(!req?.user?.id){
-        res.status(400).json({
-            msg: "User Not Logged In",
-        });
-        return;
-    }
-    const foundUser = await userModel.findById(req.user.id).select("-password -googleId");
+export const myProfileHandler = asyncHandler(
+    async (req: AuthenticatedRequest, res: Response) => {
+        if (!req?.user?.id) {
+            res.status(400).json({
+                msg: "User Not Logged In",
+            });
+            return;
+        }
+        const foundUser = await userModel
+            .findById(req.user.id)
+            .select("-password -googleId");
 
-    res.status(200).json({
-        msg: "Users Pofile",
-        user: foundUser,
-    })
-})
+        res.status(200).json({
+            msg: "Users Pofile",
+            user: foundUser,
+        });
+    }
+);
 
 // Logout
 export const LogoutHandler = asyncHandler(
@@ -122,7 +128,7 @@ export const LogoutHandler = asyncHandler(
         res.clearCookie("token", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         });
 
         return res.status(200).json({ msg: "User logged out" });
@@ -142,6 +148,6 @@ export const googleLoginHandler = asyncHandler(
 
         setAuthCookie(res, user?._id);
 
-        return res.redirect(`http://localhost:3001/login`);
+        return res.redirect(`${process.env.CLIENT_URL as string}/login`);
     }
 );
