@@ -26,8 +26,6 @@ export const Strategy = new googleStrategy(
     },
     async function (accessToken, refreshToken, profile, cb) {
         try {
-            console.log({ accessToken, refreshToken, profile });
-            console.log("emails", profile.emails);
             let foundUser = await userSchema.findOne({ googleId: profile.id });
             const avatarUrl = profile.photos?.[0]?.value;
 

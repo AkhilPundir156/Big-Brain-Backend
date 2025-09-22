@@ -4,7 +4,6 @@ let _extractorInstance: FeatureExtractionPipeline | null = null;
 
 export async function initEmbeddingExtractor(): Promise<FeatureExtractionPipeline> {
     if (!_extractorInstance) {
-        console.log("Initializing embedding model (this may take a moment)...");
         _extractorInstance = await pipeline(
             "feature-extraction",
             "mixedbread-ai/mxbai-embed-large-v1",
@@ -12,13 +11,12 @@ export async function initEmbeddingExtractor(): Promise<FeatureExtractionPipelin
                 quantized: true,
             }
         );
-        console.log("Embedding model initialized and ready.");
     }
     return _extractorInstance;
 }
 
 //@ts-ignore
-if(process.env.INITIALIZE_EMBEDDING == "1"){
+if (process.env.INITIALIZE_EMBEDDING == "1") {
     initEmbeddingExtractor();
 }
 
@@ -30,7 +28,6 @@ export const computeEmbeddingHandler = async (query: string) => {
     }
 
     if (!_extractorInstance) {
-        console.error("Embedding extractor not initialized.");
         return {
             msg: "Service unavailable: Embedding model not loaded.",
         };
