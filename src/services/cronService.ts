@@ -1,5 +1,5 @@
+import { Mutex } from "async-mutex";
 import cron, {ScheduledTask} from "node-cron";
-import { contactModel } from "../models/userSchema.js";
 
 type CronJobOptions = {
     schedule: string; // Cron schedule expression
@@ -9,8 +9,28 @@ type CronJobOptions = {
     runOnInit?: boolean; // If true, the job will run immediately upon initialization
 };
 
-export class CronService{
-    private jobs:Map<string, ScheduledTask>=new Map();
+class CronService {
+    private static _instance: CronService | null = null;
+    // Mutex to ensure thread-safe singleton initialization
+    private static _mutex = new Mutex();
+    private jobs: Map<string, ScheduledTask> = new Map();
+
+    // Prevent direct instantiation
+    private constructor() {}
+
+    static async getInstance(): Promise<CronService> {
+        //First check without lock
+        if (CronService._instance) {
+            return CronService._instance;
+        }
+        await CronService._mutex.runExclusive(async () => {
+                //Second check within lock
+                if (!CronService._instance) {
+                    CronService._instance = new CronService();
+                }
+            }); 
+        return CronService._instance!;
+    }
 
     // Create and schedule a new cron job
     CreateJob(name:string, options:CronJobOptions){
@@ -56,22 +76,6 @@ export class CronService{
             job.stop();
             this.jobs.delete(name);
         }
-    }
-
-    // Start a specific job
-    startJob(name: string) {
-        const job = this.jobs.get(name);
-        if (job) {
-            job.start();
-        }
-    }
-
-    // Stop a specific job
-    stopJob(name: string) {
-        const job=this.jobs.get(name);
-        if(job){
-            job.stop();
-        }   
     }
 
     // Start all jobs

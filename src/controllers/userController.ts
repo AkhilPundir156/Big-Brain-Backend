@@ -2,10 +2,12 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import z from "zod";
 
-import userModel, {contactModel} from "../models/userSchema.js";
+import userModel, { contactModel } from "../models/userSchema.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { setAuthCookie } from "../middleware/setAuthCookie.js";
+
 import { AuthenticatedRequest } from "../types/express.js";
+
 import { uploadCloudinary } from "../utils/cloudinaryHandler.js";
 
 // ---------------- Validation ----------------
@@ -37,7 +39,9 @@ export const SignupHandler = asyncHandler(
 
         const existingUser = await userModel.findOne({ email: userData.email });
         if (existingUser) {
-            return res.status(400).json({error:false, msg: "User already exists" });
+            return res
+                .status(400)
+                .json({ error: false, msg: "User already exists" });
         }
 
         const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -67,7 +71,7 @@ export const LoginHandler = asyncHandler(
     async (req: Request, res: Response) => {
         const userData: LoginUser = req.body;
 
-        console.log(userData)
+        console.log(userData);
         const parsed = loginSchema.safeParse(userData);
 
         if (!parsed.success) {
@@ -103,20 +107,24 @@ export const LoginHandler = asyncHandler(
     }
 );
 
-export const myProfileHandler = asyncHandler(async(req: AuthenticatedRequest, res: Response)=>{
-    if(!req?.user?.id){
-        res.status(400).json({
-            msg: "User Not Logged In",
-        });
-        return;
-    }
-    const foundUser = await userModel.findById(req.user.id).select("-password -googleId");
+export const myProfileHandler = asyncHandler(
+    async (req: AuthenticatedRequest, res: Response) => {
+        if (!req?.user?.id) {
+            res.status(400).json({
+                msg: "User Not Logged In",
+            });
+            return;
+        }
+        const foundUser = await userModel
+            .findById(req.user.id)
+            .select("-password -googleId");
 
-    res.status(200).json({
-        msg: "Users Pofile",
-        user: foundUser,
-    })
-})
+        res.status(200).json({
+            msg: "Users Pofile",
+            user: foundUser,
+        });
+    }
+);
 
 // Logout
 export const LogoutHandler = asyncHandler(
@@ -156,9 +164,9 @@ export const contactUsHandler = asyncHandler(
         if (!name || !email || !message) {
             return res.status(400).json({ msg: "All fields are required" });
         }
-        // Here, you can add logic to store the contact message in the database or send an email notification
+        // Logic to store the contact message in the database or send an email notification
         const newContact = await contactModel.create({ name, email, message, createdAt: new Date() });
-
+ 
         return res.status(200).json({ msg: "Message received successfully" });
     
         }catch(error){
