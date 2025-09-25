@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 
-import { LoginHandler, LogoutHandler, SignupHandler, googleLoginHandler, myProfileHandler } from "../controllers/userController.js";
+import { LoginHandler, LogoutHandler, SignupHandler, contactUsHandler, googleLoginHandler, myProfileHandler } from "../controllers/userController.js";
 import { upload } from "../middleware/uploadFile.js";
 import { isAuthenticated } from "../middleware/isAuthenticated.js";
 
@@ -19,8 +19,12 @@ UserRouter.post("/login", LoginHandler);
 // User logout (clears cookie)
 UserRouter.post("/logout", LogoutHandler);
 
+//Contact handling route
+UserRouter.post("/contact", contactUsHandler);
+
 UserRouter.get('/auth/google', passport.authenticate('google', { scope: ['profile','email']}));
 
 UserRouter.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), googleLoginHandler)
+
 
 export default UserRouter;

@@ -12,6 +12,9 @@ import UserRouter from "./routes/userRoutes.js";
 import BrainRouter from "./routes/brainRouter.js";
 import connectDB from "./connectDB/connectDB.js";
 
+// -------- Cron Jobs automation--------
+import "./utils/cronHandler.js";
+
 const app = express();
 
 v2.config();
@@ -68,7 +71,7 @@ app.listen(process.env.PORT, async () => {
         return;
     }
     await connectDB(process.env.MONGO_URL);
-    console.log("Service Started")
+    console.log("Service Started");
 });
 
 /**

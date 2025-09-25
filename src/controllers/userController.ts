@@ -2,10 +2,12 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import z from "zod";
 
-import userModel from "../models/userSchema.js";
+import userModel, { contactModel } from "../models/userSchema.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { setAuthCookie } from "../middleware/setAuthCookie.js";
+
 import { AuthenticatedRequest } from "../types/express.js";
+
 import { uploadCloudinary } from "../utils/cloudinaryHandler.js";
 
 // ---------------- Validation ----------------
@@ -149,5 +151,30 @@ export const googleLoginHandler = asyncHandler(
         setAuthCookie(res, user?._id);
 
         return res.redirect(`${process.env.CLIENT_URL as string}/login`);
+    }
+);
+
+//contact us handler
+export const contactUsHandler = asyncHandler(
+    async (req: Request, res: Response) => {
+        try {
+            const { name, email, message } = req.body;
+            if (!name || !email || !message) {
+                return res.status(400).json({ success:false, msg: "All fields are required" });
+            }
+            // Logic to store the contact message in the database or send an email notification
+            await contactModel.create({
+                name,
+                email,
+                message,
+                createdAt: new Date(),
+            });
+
+            return res
+                .status(200)
+                .json({ success: true, msg: "Message received successfully" });
+        } catch (error) {
+            res.status(500).json({ success: false, msg: "Failed to send message", error });
+        }
     }
 );
