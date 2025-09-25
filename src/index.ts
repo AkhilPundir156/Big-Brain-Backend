@@ -13,7 +13,7 @@ import BrainRouter from "./routes/brainRouter.js";
 import connectDB from "./connectDB/connectDB.js";
 
 // -------- Cron Jobs automation--------
-import "./utils/cronHandler.js";
+import "./services/cronJobs.js";
 
 const app = express();
 
