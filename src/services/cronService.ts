@@ -1,5 +1,5 @@
 import { Mutex } from "async-mutex";
-import cron, {ScheduledTask} from "node-cron";
+import cron, { ScheduledTask } from "node-cron";
 
 type CronJobOptions = {
     schedule: string; // Cron schedule expression
@@ -24,47 +24,49 @@ class CronService {
             return CronService._instance;
         }
         await CronService._mutex.runExclusive(async () => {
-                //Second check within lock
-                if (!CronService._instance) {
-                    CronService._instance = new CronService();
-                }
-            }); 
+            //Second check within lock
+            if (!CronService._instance) {
+                CronService._instance = new CronService();
+            }
+        });
         return CronService._instance!;
     }
 
     // Create and schedule a new cron job
-    CreateJob(name:string, options:CronJobOptions){
-        if(this.jobs.has(name)){
+    CreateJob(name: string, options: CronJobOptions) {
+        if (this.jobs.has(name)) {
             throw new Error(`⚠️ Cron job with name ${name} already exists.`);
         }
 
-        const task=cron.schedule(options.schedule, async()=>{
-            try{
-                let context=options.context||{};
+        const task = cron.schedule(options.schedule, async () => {
+            try {
+                let context = options.context || {};
 
-                if(options.todayOnly){
-                    const startOfDay=new Date();
-                    startOfDay.setHours(0,0,0,0);
+                if (options.todayOnly) {
+                    const startOfDay = new Date();
+                    startOfDay.setHours(0, 0, 0, 0);
 
-                    const endOfDay=new Date();
-                    endOfDay.setHours(23,59,59,999);
-                    context={...context, startOfDay, endOfDay};
+                    const endOfDay = new Date();
+                    endOfDay.setHours(23, 59, 59, 999);
+                    context = { ...context, startOfDay, endOfDay };
                 }
 
                 await options.job(context);
             } catch (error) {
-                console.error(`❌ Error occurred while executing cron job ${name}:`, error);
+                console.error(
+                    `❌ Error occurred while executing cron job ${name}:`,
+                    error
+                );
             }
-
         });
 
-    if (options.runOnInit) {
-        try {
-         options.job(options.context);
-        } catch (err) {
-            console.error(`❌ Error in immediate run of '${name}':`, err);
+        if (options.runOnInit) {
+            try {
+                options.job(options.context);
+            } catch (err) {
+                console.error(`❌ Error in immediate run of '${name}':`, err);
+            }
         }
-    }
 
         this.jobs.set(name, task);
     }
@@ -79,13 +81,13 @@ class CronService {
     }
 
     // Start all jobs
-    startAllJobs(){
-        this.jobs.forEach((job)=>job.start());
+    startAllJobs() {
+        this.jobs.forEach((job) => job.start());
     }
 
     // Stop all jobs
-    stopAllJobs(){
-        this.jobs.forEach((job)=>job.stop());
+    stopAllJobs() {
+        this.jobs.forEach((job) => job.stop());
     }
 }
 

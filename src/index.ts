@@ -10,7 +10,6 @@ import passport from "passport";
 import { Strategy as googleStrategy } from "./oauth/googleStratgy.js";
 import UserRouter from "./routes/userRoutes.js";
 import BrainRouter from "./routes/brainRouter.js";
-import contactRouter from "./routes/contactRouter.js";
 import connectDB from "./connectDB/connectDB.js";
 
 // -------- Cron Jobs automation--------
@@ -31,8 +30,11 @@ app.use(
     cors({
         origin: process.env.CLIENT_URL,
         credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
+
 app.use(
     session({
         secret: process.env.JWT_SECRET as string,
@@ -45,7 +47,6 @@ app.use(
 // -------- Routes --------
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/brain", BrainRouter);
-app.use("/",contactRouter); // Contact Router
 
 // ------- Unhandled Routes -------
 app.use((req: Request, res: Response) => {
@@ -57,7 +58,6 @@ app.use((req: Request, res: Response) => {
 
 // -------- Global Error Handler --------
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error("Unhandled Error:", err.stack || err.message || err);
     res.status(500).json({
         success: false,
         msg: "Internal server error",
@@ -71,7 +71,7 @@ app.listen(process.env.PORT, async () => {
         return;
     }
     await connectDB(process.env.MONGO_URL);
-    console.log(`🚀 Server running on port ${process.env.PORT}`);
+    console.log("Service Started");
 });
 
 /**

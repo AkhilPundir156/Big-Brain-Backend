@@ -10,8 +10,6 @@ export const uploadCloudinary = async (path: string) => {
             data: response,
         };
     } catch (err) {
-        console.log(process.env.CLOUDINARY_URL);
-        console.log(err);
         return {
             success: false,
             msg: "error while uploading the file",

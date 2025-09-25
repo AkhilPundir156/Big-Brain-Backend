@@ -49,7 +49,6 @@ export const SignupHandler = asyncHandler(
         let url: string = "";
         if (req.file?.path) {
             const cloundinaryResponse = await uploadCloudinary(req.file.path);
-            console.log(cloundinaryResponse.msg);
             url = cloundinaryResponse.data?.url as string;
         }
 
@@ -71,7 +70,6 @@ export const LoginHandler = asyncHandler(
     async (req: Request, res: Response) => {
         const userData: LoginUser = req.body;
 
-        console.log(userData);
         const parsed = loginSchema.safeParse(userData);
 
         if (!parsed.success) {
@@ -132,7 +130,7 @@ export const LogoutHandler = asyncHandler(
         res.clearCookie("token", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         });
 
         return res.status(200).json({ msg: "User logged out" });
@@ -152,24 +150,31 @@ export const googleLoginHandler = asyncHandler(
 
         setAuthCookie(res, user?._id);
 
-        return res.redirect(`http://localhost:3001/login`);
+        return res.redirect(`${process.env.CLIENT_URL as string}/login`);
     }
 );
 
 //contact us handler
 export const contactUsHandler = asyncHandler(
     async (req: Request, res: Response) => {
-        try{
+        try {
             const { name, email, message } = req.body;
-        if (!name || !email || !message) {
-            return res.status(400).json({ msg: "All fields are required" });
+            if (!name || !email || !message) {
+                return res.status(400).json({ success:false, msg: "All fields are required" });
+            }
+            // Logic to store the contact message in the database or send an email notification
+            await contactModel.create({
+                name,
+                email,
+                message,
+                createdAt: new Date(),
+            });
+
+            return res
+                .status(200)
+                .json({ success: true, msg: "Message received successfully" });
+        } catch (error) {
+            res.status(500).json({ success: false, msg: "Failed to send message", error });
         }
-        // Logic to store the contact message in the database or send an email notification
-        const newContact = await contactModel.create({ name, email, message, createdAt: new Date() });
- 
-        return res.status(200).json({ msg: "Message received successfully" });
-    
-        }catch(error){
-            res.status(500).json({ msg: "Failed to send message", error });
-        }
-    });
+    }
+);

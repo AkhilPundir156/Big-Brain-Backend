@@ -1,9 +1,9 @@
-import  CronService from "./cronService.js";
-import { contactModel } from "../models/userSchema.js";
+import CronService from "./cronService.js";
+
 import sendEmail from "../utils/emailHandler.js";
+import { contactModel } from "../models/userSchema.js";
 
-
-async function setDailyContactSummaryEmail(){
+async function setDailyContactSummaryEmail() {
     const cronService = await CronService.getInstance();
 
     cronService.CreateJob("dailyContactNotification", {
@@ -13,24 +13,29 @@ async function setDailyContactSummaryEmail(){
         job: async (context) => {
             const { startOfDay, endOfDay } = context || {};
             const contacts = await contactModel.find({
-                createdAt: { $gte: startOfDay, $lt: endOfDay }
+                createdAt: { $gte: startOfDay, $lt: endOfDay },
             });
 
-            if(contacts.length===0){
+            if (contacts.length === 0) {
                 return;
             }
 
-            const summary = contacts.map((msg) => `- Name: ${msg.name}|| Email:(${msg.email})|| Message: ${msg.message} || CreatedAt: ${msg.createdAt}`).join("\n");
+            const summary = contacts
+                .map(
+                    (msg) =>
+                        `- Name: ${msg.name}|| Email:(${msg.email})|| Message: ${msg.message} || CreatedAt: ${msg.createdAt}`
+                )
+                .join("\n");
 
             await sendEmail(
                 process.env.EMAIL_SERVICE_USER as string,
                 "Daily Contact Messages Summary",
                 summary
             );
-        }
+        },
     });
 
-cronService.startAllJobs();
+    cronService.startAllJobs();
 }
 
 setDailyContactSummaryEmail();
