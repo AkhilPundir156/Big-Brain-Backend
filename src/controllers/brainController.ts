@@ -103,7 +103,6 @@ export const createHandler = asyncHandler(
         let url: string = "";
         if (req.file?.path) {
             const cloundinaryResponse = await uploadCloudinary(req.file.path);
-            console.log(cloundinaryResponse.msg);
             url = cloundinaryResponse.data?.url as string;
         }
 

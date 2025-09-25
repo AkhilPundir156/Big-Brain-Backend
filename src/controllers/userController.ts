@@ -49,7 +49,6 @@ export const SignupHandler = asyncHandler(
         let url: string = "";
         if (req.file?.path) {
             const cloundinaryResponse = await uploadCloudinary(req.file.path);
-            console.log(cloundinaryResponse.msg);
             url = cloundinaryResponse.data?.url as string;
         }
 
@@ -71,7 +70,7 @@ export const LoginHandler = asyncHandler(
     async (req: Request, res: Response) => {
         const userData: LoginUser = req.body;
 
-        console.log(userData);
+
         const parsed = loginSchema.safeParse(userData);
 
         if (!parsed.success) {
@@ -132,7 +131,7 @@ export const LogoutHandler = asyncHandler(
         res.clearCookie("token", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         });
 
         return res.status(200).json({ msg: "User logged out" });
@@ -152,7 +151,7 @@ export const googleLoginHandler = asyncHandler(
 
         setAuthCookie(res, user?._id);
 
-        return res.redirect(`http://localhost:3001/login`);
+        return res.redirect(`${process.env.CLIENT_URL as string}/login`);
     }
 );
 

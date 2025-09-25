@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
     cors({
-        origin: "*",
+        origin: process.env.CLIENT_URL,
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
@@ -60,7 +60,6 @@ app.use((req: Request, res: Response) => {
 
 // -------- Global Error Handler --------
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error("Unhandled Error:", err.stack || err.message || err);
     res.status(500).json({
         success: false,
         msg: "Internal server error",
@@ -74,7 +73,7 @@ app.listen(process.env.PORT, async () => {
         return;
     }
     await connectDB(process.env.MONGO_URL);
-    console.log(`🚀 Server running on port ${process.env.PORT}`);
+    console.log("Service Started")
 });
 
 /**
