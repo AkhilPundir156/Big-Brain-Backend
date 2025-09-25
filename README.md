@@ -36,7 +36,7 @@ yarn install
 Create a .env file in the root with the following variables:
 ```
 PORT=3000
-MONGO_URL=mongodb://localhost:27017/bigbrain
+MONGO_URI=mongodb://localhost:27017/bigbrain
 JWT_SECRET=your_jwt_secret
 CORS_ORIGIN=http://localhost:5173
 OPENAI_API_KEY = YOUR OPEN API KEY
