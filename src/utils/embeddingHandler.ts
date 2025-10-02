@@ -6,13 +6,14 @@ export async function initEmbeddingExtractor(): Promise<FeatureExtractionPipelin
     if (!_extractorInstance) {
         _extractorInstance = await pipeline(
             "feature-extraction",
-            "mixedbread-ai/mxbai-embed-large-v1",
+            "Xenova/all-MiniLM-L6-v2",
             {
                 quantized: true,
             }
         );
     }
     return _extractorInstance;
+
 }
 
 //@ts-ignore

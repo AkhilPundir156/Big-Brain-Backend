@@ -118,7 +118,7 @@ export const myProfileHandler = asyncHandler(
             .select("-password -googleId");
 
         res.status(200).json({
-            msg: "Users Pofile",
+            // msg: "Users Pofile",
             user: foundUser,
         });
     }
