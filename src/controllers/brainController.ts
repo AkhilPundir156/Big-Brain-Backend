@@ -45,7 +45,7 @@ export const meHandler = asyncHandler(
             .populate("tags", "name");
         res.status(200).json({
             success: true,
-            msg: "User content retrieved",
+            // msg: "User content retrieved",
             data: myData,
         });
     }
@@ -334,7 +334,7 @@ export const searchHandler = asyncHandler(
                     index: "embedding",
                     path: "embedding",
                     queryVector: embedding.embedding,
-                    numCandidates: 1024,
+                    numCandidates: 384,
                     limit: 5,
                 },
             },
@@ -400,7 +400,7 @@ export const generateShareLink = asyncHandler(
 
         res.status(201).json({
             success: true,
-            msg: "Share link created",
+            msg: "Share link copied to clipboard.",
             data: {
                 url: `${process.env.CLIENT_URL}/share/${hash}`,
                 expiresAt: shareLink.expiresAt,
