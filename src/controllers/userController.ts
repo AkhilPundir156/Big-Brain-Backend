@@ -178,3 +178,33 @@ export const contactUsHandler = asyncHandler(
         }
     }
 );
+
+//update theme
+export const changeTheme = asyncHandler(
+    async (req: Request, res: Response) => {
+        try{
+            const { theme,email } = req.body;
+
+            if(theme !== "light" && theme == "dark"){
+                return res.status(400).json({message: "Invalid theme value"});
+            }
+
+            const updateUser = await userModel.findOneAndUpdate(
+                { email },
+                { theme },
+                { new: true}
+            );
+            
+            if (!updateUser){
+                return res.status(404).json({message: "user not found"});
+            }
+
+            res.status(200).json({theme: updateUser.theme});
+        }catch(err){
+            console.error("Update theme error:", err);
+            res.status(500).json({message: "Internal server error"});
+        }
+    }
+
+)
+
