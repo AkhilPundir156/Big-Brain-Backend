@@ -180,17 +180,18 @@ export const contactUsHandler = asyncHandler(
 );
 
 //update theme
-export const changeTheme = asyncHandler(
+export const changeThemeHandler = asyncHandler(
     async (req: Request, res: Response) => {
         try{
-            const { theme,email } = req.body;
+            const userId = req.body.user._id;
+            const { theme } = req.body;
 
             if(theme !== "light" && theme == "dark"){
                 return res.status(400).json({message: "Invalid theme value"});
             }
 
-            const updateUser = await userModel.findOneAndUpdate(
-                { email },
+            const updateUser = await userModel.findByIdAndUpdate(
+                { userId },
                 { theme },
                 { new: true}
             );
