@@ -160,7 +160,9 @@ export const contactUsHandler = asyncHandler(
         try {
             const { name, email, message } = req.body;
             if (!name || !email || !message) {
-                return res.status(400).json({ success:false, msg: "All fields are required" });
+                return res
+                    .status(400)
+                    .json({ success: false, msg: "All fields are required" });
             }
             // Logic to store the contact message in the database or send an email notification
             await contactModel.create({
@@ -174,38 +176,38 @@ export const contactUsHandler = asyncHandler(
                 .status(200)
                 .json({ success: true, msg: "Message received successfully" });
         } catch (error) {
-            res.status(500).json({ success: false, msg: "Failed to send message", error });
+            res.status(500).json({
+                success: false,
+                msg: "Failed to send message",
+                error,
+            });
         }
     }
 );
 
 //update theme
 export const changeThemeHandler = asyncHandler(
-    async (req: Request, res: Response) => {
-        try{
-            const userId = req.body.user._id;
+    async (req: AuthenticatedRequest, res: Response) => {
+        try {
+            const userId = req.user?.id;
             const { theme } = req.body;
-
-            if(theme !== "light" && theme == "dark"){
-                return res.status(400).json({message: "Invalid theme value"});
+            if (!(theme === "light" || theme === "dark")) {
+                return res.status(400).json({ message: "Invalid theme value" });
             }
-
             const updateUser = await userModel.findByIdAndUpdate(
-                { userId },
+                { _id: userId },
                 { theme },
-                { new: true}
+                { new: true }
             );
-            
-            if (!updateUser){
-                return res.status(404).json({message: "user not found"});
+
+            if (!updateUser) {
+                return res.status(404).json({ message: "user not found" });
             }
 
-            res.status(200).json({theme: updateUser.theme});
-        }catch(err){
+            res.status(200).json({ theme: updateUser.theme });
+        } catch (err) {
             console.error("Update theme error:", err);
-            res.status(500).json({message: "Internal server error"});
+            res.status(500).json({ message: "Internal server error" });
         }
     }
-
-)
-
+);
