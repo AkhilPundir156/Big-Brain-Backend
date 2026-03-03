@@ -21,6 +21,11 @@ const userSchema = new Schema({
         enum:["light","dark"],
         default:"light",
     },
+    total_queries: {
+        type: [Date],
+        default: []
+    },
+    total_brain_items: Number,
     avatar_url: String,
 });
 

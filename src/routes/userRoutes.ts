@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 
-import { LoginHandler, LogoutHandler, SignupHandler, contactUsHandler, googleLoginHandler, myProfileHandler, changeThemeHandler } from "../controllers/userController.js";
+import { LoginHandler, LogoutHandler, SignupHandler, contactUsHandler, googleLoginHandler, myProfileHandler, changeThemeHandler, getTotalUsers } from "../controllers/userController.js";
 import { upload } from "../middleware/uploadFile.js";
 import { isAuthenticated } from "../middleware/isAuthenticated.js";
 
@@ -15,6 +15,7 @@ UserRouter.get("/me", isAuthenticated, myProfileHandler);
 
 //Updating theme
 UserRouter.patch("/theme", isAuthenticated, changeThemeHandler );
+UserRouter.get("/total", getTotalUsers);
 
 // User login (cookie is set inside LoginHandler)
 UserRouter.post("/login", LoginHandler);

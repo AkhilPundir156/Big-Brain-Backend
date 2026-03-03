@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { contentModel, linkModel, tagModel } from "../models/brainSchema.js";
+import userModel from "../models/userSchema.js";
 import { AuthenticatedRequest } from "../types/express.js";
 import { computeEmbeddingHandler } from "../utils/embeddingHandler.js";
 import { isValidMongoId } from "../utils/isValidMongoId.js";
@@ -130,6 +131,13 @@ export const createHandler = asyncHandler(
             fileUrl: url || "",
             fileDescription: llmImgResponse,
         });
+        if (createdDocument){
+            const user = await userModel.findById(userId);
+            if (user) {
+                user.total_brain_items = user.total_brain_items || 0 + 1;
+                await user.save();
+            }
+        }
 
         res.status(201).json({
             success: true,
@@ -325,7 +333,37 @@ export const searchHandler = asyncHandler(
             });
             return;
         }
+        const user = await userModel.findById(req.user?.id);
+        if (!user) {
+            res.status(401).json({
+                success: false,
+                msg: "Unauthorized",
+                data: null,
+            });
+            return;
+        }
+        const today = new Date();
+        //@ts-ignore
+        const todayQueries = user.total_queries.filter((q: Date) => {
+            return (
+                q.getFullYear() === today.getFullYear() &&
+                q.getMonth() === today.getMonth() &&
+                q.getDate() === today.getDate()
+            );
+        });
 
+        if (todayQueries.length >= 5) {
+            res.status(200).json({
+                success: true,
+                msg: "You have reached the daily limit of queries i.e, 5",
+                data: {
+                    msg: "You have reached the daily limit of queries i.e, 5",
+                },
+            });
+            return;
+        }
+        user.total_queries.push(new Date());
+        await user.save();
         const embedding = await computeEmbeddingHandler(query);
 
         const foundContent = await contentModel.aggregate([

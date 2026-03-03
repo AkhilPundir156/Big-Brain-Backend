@@ -18,7 +18,7 @@ export class LLMService {
             description: string;
             fileDescription: string;
         }[] = [],
-        model = "gemini-2.0-flash"
+        model = "gemini-2.5-flash"
     ): Promise<string> {
         try {
             const contextText = context
@@ -71,7 +71,7 @@ export class LLMService {
     async getImageDescription(
         imgUrl: string,
         systemPrompt: string,
-        model = "gemini-2.0-flash"
+        model = "gemini-2.5-flash"
     ): Promise<string> {
         try {
             const url = `${this.baseURL}/${model}:generateContent?key=${this.apiKey}`;

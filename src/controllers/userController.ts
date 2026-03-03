@@ -211,3 +211,10 @@ export const changeThemeHandler = asyncHandler(
         }
     }
 );
+
+export const getTotalUsers = asyncHandler(
+    async (req: Request, res: Response) => {
+        const user = await userModel.find();
+        res.status(200).json({ totalUsers: user.length });
+    }
+);
